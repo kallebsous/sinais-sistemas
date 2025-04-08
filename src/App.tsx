@@ -7,7 +7,7 @@ import { SignalTransformations } from './components/SignalTransformations';
 import { Tutorial } from './components/Tutorial';
 import { Documentation } from './components/Documentation';
 import { 
-  radio-tower as Waveform, 
+  RadioTower as Waveform, 
   Activity, 
   Save, 
   Download, 
