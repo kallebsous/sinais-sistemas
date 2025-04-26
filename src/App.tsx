@@ -24,7 +24,6 @@ import type { Signal, PlotType } from './types';
 
 function App() {
   const [signals, setSignals] = useState<Signal[]>([]);
-  const [plotType, setPlotType] = useState<PlotType>('time');
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
@@ -201,32 +200,11 @@ function App() {
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
               <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Visualização do Sinal</h2>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setPlotType('time')}
-                    className={`px-3 py-1 rounded-md transition-colors ${
-                      plotType === 'time'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    Domínio do Tempo
-                  </button>
-                  <button
-                    onClick={() => setPlotType('frequency')}
-                    className={`px-3 py-1 rounded-md transition-colors ${
-                      plotType === 'frequency'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    Domínio da Frequência
-                  </button>
-                </div>
+               
               </div>
 
               {signals.length > 0 ? (
-                <SignalPlot signals={signals} plotType={plotType} darkMode={darkMode} />
+                <SignalPlot signals={signals} darkMode={darkMode} />
               ) : (
                 <div className="flex items-center justify-center h-[500px] bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
                   <div className="text-center">

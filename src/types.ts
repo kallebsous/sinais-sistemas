@@ -2,6 +2,7 @@ export interface Signal {
   id: string;
   name: string;
   expression: string;
+  type: 'continuous' | 'discrete';
   points?: number[];
   samplingRate: number;
   startTime: number;
@@ -14,9 +15,10 @@ export interface SignalProperties {
   isOdd: boolean;
   energy: number;
   power: number;
+  signalType: 'energy' | 'power' | 'neither';
 }
 
-export type PlotType = 'time' | 'frequency' | 'overlay';
+export type PlotType = 'time';
 
 export type SignalOperation = 'add' | 'subtract' | 'multiply' | 'divide' | 'convolve' | 'correlate';
 

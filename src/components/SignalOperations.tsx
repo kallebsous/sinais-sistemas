@@ -26,7 +26,7 @@ export function SignalOperations({ signals, onAddSignal }: SignalOperationsProps
       multiply: '*',
       divide: '/',
       convolve: 'convoluído com',
-      correlate: 'correlacionado com'
+      correlate: 'correlacionado com',
     }[operation];
 
     const novaExpressao =
@@ -36,7 +36,7 @@ export function SignalOperations({ signals, onAddSignal }: SignalOperationsProps
             add: '+',
             subtract: '-',
             multiply: '*',
-            divide: '/'
+            divide: '/',
           }[operation]} (${sinal2.expression})`;
 
     const nomeNovoSinal =
@@ -44,13 +44,18 @@ export function SignalOperations({ signals, onAddSignal }: SignalOperationsProps
         ? `${sinal1.name} ${simboloOperacao} ${sinal2.name}`
         : `${sinal1.name} ${simboloOperacao} ${sinal2.name}`;
 
+    // Determinar o tipo do novo sinal
+    const newSignalType: 'continuous' | 'discrete' =
+      sinal1.type === 'continuous' || sinal2.type === 'continuous' ? 'continuous' : 'discrete';
+
     const novoSinal: Signal = {
       id: crypto.randomUUID(),
       name: nomeNovoSinal,
       expression: novaExpressao,
+      type: newSignalType, // Adicionando a propriedade type
       samplingRate: Math.max(sinal1.samplingRate, sinal2.samplingRate),
       startTime: Math.min(sinal1.startTime, sinal2.startTime),
-      endTime: Math.max(sinal1.endTime, sinal2.endTime)
+      endTime: Math.max(sinal1.endTime, sinal2.endTime),
     };
 
     onAddSignal(novoSinal);

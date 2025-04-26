@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { PlusCircle, Trash2, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { PlusCircle, Lightbulb } from 'lucide-react';
 import type { Signal } from '../types';
 
 interface SignalInputProps {
@@ -39,19 +39,34 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
   const [expression, setExpression] = useState('');
   const [samplingRate, setSamplingRate] = useState(1000);
   const [timeRange, setTimeRange] = useState({ start: -10, end: 10 });
+  const [signalType, setSignalType] = useState<'continuous' | 'discrete'>('continuous');
+  const [pointsInput, setPointsInput] = useState(''); // Renomeado para evitar confusão
+
+  // Ajustar samplingRate automaticamente com base no tipo de sinal
+  useEffect(() => {
+    if (signalType === 'discrete') {
+      setSamplingRate(10);
+    } else {
+      setSamplingRate(1000);
+    }
+  }, [signalType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddSignal({
+    const signal: Signal = {
       id: crypto.randomUUID(),
       name,
       expression,
       samplingRate,
       startTime: timeRange.start,
       endTime: timeRange.end,
-    });
+      type: signalType,
+      ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }), // Corrige para 'points'
+    };
+    onAddSignal(signal);
     setName('');
     setExpression('');
+    setPointsInput('');
   };
 
   const handleAddExample = (example: typeof exampleSignals[0]) => {
@@ -62,6 +77,8 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
       samplingRate,
       startTime: timeRange.start,
       endTime: timeRange.end,
+      type: signalType,
+      ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }), // Corrige para 'points'
     });
   };
 
@@ -69,7 +86,7 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Adicionar Novo Sinal</h2>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome do Sinal</label>
           <input
@@ -94,9 +111,39 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Sinal</label>
+          <select
+            value={signalType}
+            onChange={(e) => setSignalType(e.target.value as 'continuous' | 'discrete')}
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white px-2 py-3"
+          >
+            <option value="continuous">Contínuo</option>
+            <option value="discrete">Discreto</option>
+          </select>
+        </div>
+
+        {signalType === 'discrete' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Pontos de Amostragem (opcional, separados por vírgula)
+            </label>
+            <input
+              type="text"
+              value={pointsInput}
+              onChange={(e) => setPointsInput(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white px-2 py-3"
+              placeholder="ex: -1, -0.5, 0, 0.5, 1"
+            />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Deixe em branco para gerar pontos automaticamente com base na taxa de amostragem.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 ">Tempo Inicial</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tempo Inicial</label>
             <input
               type="number"
               value={timeRange.start}
@@ -116,7 +163,14 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Taxa de Amostragem (Hz)</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Taxa de Amostragem (Hz)
+            {signalType === 'discrete' && (
+              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                (Ajustada para 10 Hz para melhor visualização)
+              </span>
+            )}
+          </label>
           <input
             type="number"
             value={samplingRate}
