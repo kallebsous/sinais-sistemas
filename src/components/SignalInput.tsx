@@ -10,28 +10,33 @@ const exampleSignals = [
   {
     name: 'Onda Senoidal',
     expression: 'sin(2*pi*t)',
-    description: 'Onda senoidal básica com frequência 1 Hz'
+    description: 'Onda senoidal básica com frequência 1 Hz',
   },
   {
     name: 'Onda Quadrada',
     expression: 'sign(sin(2*pi*t))',
-    description: 'Onda quadrada com frequência 1 Hz'
+    description: 'Onda quadrada com frequência 1 Hz',
   },
   {
     name: 'Pulso Gaussiano',
     expression: 'exp(-(t)^2/(2*0.1^2))',
-    description: 'Pulso gaussiano centrado em t=0'
+    description: 'Pulso gaussiano centrado em t=0',
   },
   {
-    name: 'Decaimento Exponencial',
-    expression: 'exp(-t)*sin(2*pi*t)',
-    description: 'Senoide com decaimento exponencial'
+    name: 'Onda Cossenoidal',
+    expression: 'cos(2*pi*t)',
+    description: 'Onda cossenoidal básica com frequência 1 Hz',
   },
   {
-    name: 'Chirp Linear',
-    expression: 'sin(2*pi*t^2)',
-    description: 'Sinal com frequência crescente linearmente'
-  }
+    name: 'Função Degrau', 
+    expression: 't >= 0 ? 1 : 0',
+    description: 'Função degrau unitário em t=0',
+  },
+  {
+    name: 'Função Rampa',
+    expression: 't >= 0 ? t : 0',
+    description: 'Função rampa que cresce linearmente para t ≥ 0',
+  },
 ];
 
 export function SignalInput({ onAddSignal }: SignalInputProps) {
@@ -40,7 +45,7 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
   const [samplingRate, setSamplingRate] = useState(1000);
   const [timeRange, setTimeRange] = useState({ start: -10, end: 10 });
   const [signalType, setSignalType] = useState<'continuous' | 'discrete'>('continuous');
-  const [pointsInput, setPointsInput] = useState(''); // Renomeado para evitar confusão
+  const [pointsInput, setPointsInput] = useState('');
 
   // Ajustar samplingRate automaticamente com base no tipo de sinal
   useEffect(() => {
@@ -61,7 +66,7 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
       startTime: timeRange.start,
       endTime: timeRange.end,
       type: signalType,
-      ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }), // Corrige para 'points'
+      ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }),
     };
     onAddSignal(signal);
     setName('');
@@ -78,7 +83,7 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
       startTime: timeRange.start,
       endTime: timeRange.end,
       type: signalType,
-      ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }), // Corrige para 'points'
+      ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }),
     });
   };
 
