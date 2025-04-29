@@ -18,25 +18,29 @@ const exampleSignals = [
     description: 'Onda quadrada com frequência 1 Hz',
   },
   {
-    name: 'Pulso Gaussiano',
-    expression: 'exp(-(t)^2/(2*0.1^2))',
-    description: 'Pulso gaussiano centrado em t=0',
-  },
-  {
-    name: 'Onda Cossenoidal',
-    expression: 'cos(2*pi*t)',
-    description: 'Onda cossenoidal básica com frequência 1 Hz',
-  },
-  {
-    name: 'Função Degrau', 
-    expression: 't >= 0 ? 1 : 0',
-    description: 'Função degrau unitário em t=0',
-  },
-  {
-    name: 'Função Rampa',
-    expression: 't >= 0 ? t : 0',
-    description: 'Função rampa que cresce linearmente para t ≥ 0',
-  },
+    name: 'Pulso Gaussiano Modulado',
+    expression: 'exp(-(t-0.5)^2/(2*0.05^2)) * cos(2*pi*10*t)',
+    description: 'Pulso gaussiano centrado em t=0.5, modulado por uma cossenoide de 10 Hz',
+  }
+,  
+{
+  name: 'Onda Cossenoidal Modulada',
+  expression: 'cos(2*pi*5*t + pi/4)',
+  description: 'Onda cossenoidal com frequência 5 Hz e defasagem de 45 graus',
+}
+,
+{
+  name: 'Função Degrau Escalonada',
+  expression: 't >= 1 ? 3 : (t >= -1 ? 1 : 0)',
+  description: 'Função degrau com dois níveis: sobe para 1 em t=-1 e depois para 3 em t=1',
+}
+,
+{
+  name: 'Função Rampa Deslocada e Escalonada',
+  expression: 't >= 1 ? 2*(t-1) : 0',
+  description: 'Função rampa que começa em t=1 e cresce com inclinação 2',
+}
+
 ];
 
 export function SignalInput({ onAddSignal }: SignalInputProps) {
