@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Lightbulb } from 'lucide-react';
 import type { Signal } from '../types';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface SignalInputProps {
   onAddSignal: (signal: Signal) => void;
@@ -50,6 +51,7 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
   const [timeRange, setTimeRange] = useState({ start: -10, end: 10 });
   const [signalType, setSignalType] = useState<'continuous' | 'discrete'>('continuous');
   const [pointsInput, setPointsInput] = useState('');
+  const { addNotification } = useNotification();
 
   // Ajustar samplingRate automaticamente com base no tipo de sinal
   useEffect(() => {
@@ -62,6 +64,17 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (timeRange.start >= timeRange.end) {
+      addNotification('O tempo inicial deve ser menor que o tempo final', 'error');
+      return;
+    }
+
+    if (samplingRate <= 0) {
+      addNotification('A taxa de amostragem deve ser um valor positivo', 'error');
+      return;
+    }
+
     const signal: Signal = {
       id: crypto.randomUUID(),
       name,
@@ -73,6 +86,8 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
       ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }),
     };
     onAddSignal(signal);
+    
+    // Limpar os campos após adicionar o sinal
     setName('');
     setExpression('');
     setPointsInput('');
@@ -89,6 +104,8 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
       type: signalType,
       ...(signalType === 'discrete' && pointsInput && { points: pointsInput.split(',').map(Number) }),
     });
+    
+    addNotification(`Sinal de exemplo "${example.name}" adicionado com sucesso`, 'success');
   };
 
   return (

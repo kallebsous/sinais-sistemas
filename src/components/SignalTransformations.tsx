@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, CheckCircle2 } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 import type { Signal, SignalTransformation } from '../types';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface SignalTransformationsProps {
   signals: Signal[];
@@ -12,13 +12,21 @@ export function SignalTransformations({ signals, onAddSignal }: SignalTransforma
   const [signalId, setSignalId] = useState('');
   const [transformation, setTransformation] = useState<SignalTransformation>('amplify');
   const [factor, setFactor] = useState(1);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { addNotification } = useNotification();
 
   const performTransformation = (e: React.FormEvent) => {
     e.preventDefault();
 
     const sinal = signals.find(s => s.id === signalId);
-    if (!sinal) return;
+    if (!sinal) {
+      addNotification('Selecione um sinal para aplicar a transformação', 'error');
+      return;
+    }
+
+    if (factor === 0 && (transformation === 'attenuate' || transformation === 'expand')) {
+      addNotification('O fator não pode ser zero para esta transformação', 'error');
+      return;
+    }
 
     let novaExpressao = '';
     let nomeTransformacao = '';
@@ -52,16 +60,20 @@ export function SignalTransformations({ signals, onAddSignal }: SignalTransforma
       expression: novaExpressao,
       samplingRate: sinal.samplingRate,
       startTime: sinal.startTime,
-      endTime: sinal.endTime
+      endTime: sinal.endTime,
+      type: sinal.type, // Preservar o tipo do sinal original
     };
 
     onAddSignal(novoSinal);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    addNotification(`Transformação "${nomeTransformacao}" aplicada com sucesso`, 'success');
+    
+    // Resetar os campos
+    setSignalId('');
+    setFactor(1);
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md relative">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
       <div className="flex items-center mb-4">
         <Wand2 className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Transformações de Sinais</h2>
@@ -117,20 +129,6 @@ export function SignalTransformations({ signals, onAddSignal }: SignalTransforma
           Aplicar Transformação
         </button>
       </form>
-
-      <AnimatePresence>
-        {showSuccess && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2"
-          >
-            <CheckCircle2 className="w-5 h-5" />
-            Transformação aplicada com sucesso!
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

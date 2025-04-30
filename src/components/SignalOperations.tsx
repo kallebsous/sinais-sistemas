@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calculator } from 'lucide-react';
 import type { Signal, SignalOperation } from '../types';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface SignalOperationsProps {
   signals: Signal[];
@@ -11,6 +12,7 @@ export function SignalOperations({ signals, onAddSignal }: SignalOperationsProps
   const [signal1Id, setSignal1Id] = useState('');
   const [signal2Id, setSignal2Id] = useState('');
   const [operation, setOperation] = useState<SignalOperation>('add');
+  const { addNotification } = useNotification();
 
   const performOperation = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +20,14 @@ export function SignalOperations({ signals, onAddSignal }: SignalOperationsProps
     const sinal1 = signals.find(s => s.id === signal1Id);
     const sinal2 = signals.find(s => s.id === signal2Id);
 
-    if (!sinal1 || !sinal2) return;
+    if (!sinal1 || !sinal2) {
+      addNotification('Selecione dois sinais para realizar a operação', 'error');
+      return;
+    }
+
+    if (signal1Id === signal2Id) {
+      addNotification('Selecione sinais diferentes para a operação', 'warning');
+    }
 
     const simboloOperacao = {
       add: '+',
@@ -59,6 +68,11 @@ export function SignalOperations({ signals, onAddSignal }: SignalOperationsProps
     };
 
     onAddSignal(novoSinal);
+    addNotification(`Operação "${nomeNovoSinal}" realizada com sucesso`, 'success');
+    
+    // Resetar os campos após a operação
+    setSignal1Id('');
+    setSignal2Id('');
   };
 
   return (

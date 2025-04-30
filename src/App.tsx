@@ -21,33 +21,33 @@ import {
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import type { Signal, PlotType } from './types';
+import { useTheme } from './contexts/ThemeContext';
+import { useNotification } from './contexts/NotificationContext';
 
 function App() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  React.useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
+  const { darkMode, toggleDarkMode } = useTheme();
+  const { addNotification } = useNotification();
 
   const handleAddSignal = (signal: Signal) => {
     setSignals(prev => [...prev, signal]);
     if (!selectedSignal) {
       setSelectedSignal(signal);
     }
+    addNotification(`Sinal "${signal.name}" adicionado com sucesso`, 'success');
   };
 
   const handleRemoveSignal = (id: string) => {
+    const signalToRemove = signals.find(s => s.id === id);
     setSignals(prev => prev.filter(signal => signal.id !== id));
     if (selectedSignal?.id === id) {
       setSelectedSignal(signals[0] || null);
+    }
+    if (signalToRemove) {
+      addNotification(`Sinal "${signalToRemove.name}" removido`, 'info');
     }
   };
 
@@ -60,6 +60,8 @@ function App() {
     a.download = 'sinais.json';
     a.click();
     URL.revokeObjectURL(url);
+    
+    addNotification('Sinais salvos com sucesso', 'success');
   };
 
   const handleLoadSignals = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,9 +76,10 @@ function App() {
         if (loadedSignals.length > 0) {
           setSelectedSignal(loadedSignals[0]);
         }
+        addNotification(`${loadedSignals.length} sinais carregados com sucesso`, 'success');
       } catch (error) {
         console.error('Erro ao carregar sinais:', error);
-        alert('Erro ao carregar arquivo de sinais. Verifique o formato do arquivo.');
+        addNotification('Erro ao carregar arquivo de sinais. Verifique o formato do arquivo.', 'error');
       }
     };
     reader.readAsText(file);
@@ -93,9 +96,10 @@ function App() {
       a.href = url;
       a.download = 'grafico-sinal.png';
       a.click();
+      addNotification('Gráfico exportado com sucesso', 'success');
     } catch (error) {
       console.error('Erro ao exportar gráfico:', error);
-      alert('Erro ao exportar gráfico. Tente novamente.');
+      addNotification('Erro ao exportar gráfico. Tente novamente.', 'error');
     }
   };
 
@@ -110,7 +114,7 @@ function App() {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleDarkMode}
                 className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
