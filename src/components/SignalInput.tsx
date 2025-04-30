@@ -56,7 +56,7 @@ export function SignalInput({ onAddSignal }: SignalInputProps) {
   // Ajustar samplingRate automaticamente com base no tipo de sinal
   useEffect(() => {
     if (signalType === 'discrete') {
-      setSamplingRate(10);
+      setSamplingRate(5);
     } else {
       setSamplingRate(1000);
     }
